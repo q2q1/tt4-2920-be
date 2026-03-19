@@ -13,7 +13,6 @@ const register = (req, res) => {
         });
     }
 
-        
 
     return res.json({
         message: "Register endpoint is working!"
