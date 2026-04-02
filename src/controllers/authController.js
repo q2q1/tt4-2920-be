@@ -59,47 +59,86 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
+    try{
+        const { email, password } = req.body;
 
-    const { email, password } = req.body;
-
-    if(!email || !password){
-        return res.status(400).json({
-            message: "Email and Password are required!"
-        });
-    }
-
-    const user = await User.findOne({email: String(email).toLowerCase()});
-
-    if(!user){
-        return res.status(401).json({
-            message: "Invalid email or password"
-        });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if(!isPasswordValid){
-        return res.status(401).json({
-            message: "Invalid email or password"
-        });
-    }
-
-    const token = generateToken(String(user._id), user.email);
-
-    return res.json({
-        message: "Login successful.",
-        data: {
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt
-            }
+        if(!email || !password){
+            return res.status(400).json({
+                message: "Email and Password are required!"
+            });
         }
-    });
+
+        const user = await User.findOne({email: String(email).toLowerCase()});
+
+        if(!user){
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if(!isPasswordValid){
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        const token = generateToken(String(user._id), user.email);
+
+        return res.json({
+            message: "Login successful.",
+            data: {
+                token,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    createdAt: user.createdAt,
+                    updatedAt: user.updatedAt
+                }
+            }
+        });
+    }
+    catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message: "Error while logging in."
+        });
+    }
+}
+
+const getMe = async (req, res) => {
+    try{
+        if(!req.user || !req.user.id){
+            return res.status(401).json({
+                message: "Unauthorized"
+            });
+        }
+
+        const user = await User.findById(req.user.id).select("-password");
+
+        if(!user){
+            return res.status(404).json({
+                message: "User not found."
+            });
+        }
+
+        return res.json({
+            message: "Authenticated user fecthed successfully.",
+            data: {
+                user
+            }
+        });
+    }
+    catch(error){
+        console.log(error);
+        return res.status(500).json({
+            message: "Error while fetching authenticated user."
+        });
+    }
+    
 }
 
 
-module.exports = { register, login };
+module.exports = { register, login, getMe };
