@@ -8,6 +8,14 @@ const generateToken = (id, email) => {
     return jwt.sign({id, email}, jwtSecret, {expiresIn: "1d"});
 }
 
+const serializeUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+});
+
 const register = async (req, res) => {
     try{
         const { name, email, password } = req.body;
@@ -140,5 +148,23 @@ const getMe = async (req, res) => {
     
 }
 
+const listUsers = async (req, res) => {
+    if(!req.user || !req.user.id){
+        return res.status(401).json({
+            message: "Unauthorized"
+        });
+    }
 
-module.exports = { register, login, getMe };
+    const users = await User.find({_id: { $ne: req.user.id}})
+        .select("-password")
+        .sort({name: 1});
+
+    return res.json({
+        message: "Authenticated user fecthed successfully.",
+        data: {
+            users: users.map(serializeUser)
+        }
+    });
+}
+
+module.exports = { register, login, getMe, listUsers };

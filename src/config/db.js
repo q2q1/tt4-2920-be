@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
 
-    const mongoUri = "mongodb+srv://renancavalcanti_db_user:mcMhLcYMVzaQZObD@cluster0.msfqe8t.mongodb.net/?appName=Cluster0/tt4-2920";
+    const mongoUri = process.env.MONGO_URI;
 
     await mongoose.connect(mongoUri);
 
