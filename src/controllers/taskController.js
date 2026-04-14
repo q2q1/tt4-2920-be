@@ -7,6 +7,20 @@ const taskPopulate = [
   { path: "assignedUserId", select: "_id name email" }
 ];
 
+const emitToTaskRelevantUsers = (io, task, event, payload) => {
+  if (!io || !task) return;
+
+  const userIds = new Set();
+  if (task.userId?._id) userIds.add(String(task.userId._id));
+  if (task.userId) userIds.add(String(task.userId));
+  if (task.assignedUserId?._id) userIds.add(String(task.assignedUserId._id));
+  if (task.assignedUserId) userIds.add(String(task.assignedUserId));
+
+  for (const userId of userIds) {
+    io.to(`user:${userId}`).emit(event, payload);
+  }
+};
+
 const resolveAssignedUserId = async (assignedUserId) => {
   if (assignedUserId === undefined) {
     return undefined;
@@ -54,6 +68,9 @@ const createTask = async (req, res) => {
       assignedUserId: resolvedAssignedUserId
     });
     await task.populate(taskPopulate);
+
+    const io = req.app.get("io");
+    emitToTaskRelevantUsers(io, task, "task:created", { task });
 
     return res.status(201).json({
       message: "Task created successfully.",
@@ -109,6 +126,9 @@ const deleteTask = async (req, res) => {
         }
 
         await task.deleteOne();
+
+        const io = req.app.get("io");
+        emitToTaskRelevantUsers(io, task, "task:deleted", { taskId: task._id });
 
         return res.status(200).json({
             message: "Task Deleted successfully.",
@@ -181,6 +201,9 @@ const updateTask = async (req, res) => {
         new: true,
         runValidators: true
     }).populate(taskPopulate);
+
+    const io = req.app.get("io");
+    emitToTaskRelevantUsers(io, updatedTask, "task:updated", { task: updatedTask });
 
     return res.status(200).json({
         message: "Task Updated successfully.",

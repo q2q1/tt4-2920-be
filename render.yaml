@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: tt4-2920-backend
+    env: docker
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+
+  - type: web
+    name: tt4-2920-frontend
+    env: docker
+    rootDir: ./frontend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: API_URL
+        sync: false

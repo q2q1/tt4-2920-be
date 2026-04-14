@@ -7,6 +7,7 @@ import { finalize } from 'rxjs/operators';
 
 import { AuthService } from '../../core/auth.service';
 import { TaskItem, UserProfile } from '../../core/models';
+import { RealtimeService } from '../../core/realtime.service';
 import { TaskService } from '../../core/task.service';
 import { UserService } from '../../core/user.service';
 
@@ -22,6 +23,7 @@ export class DashboardPageComponent {
   private readonly authService = inject(AuthService);
   private readonly taskService = inject(TaskService);
   private readonly userService = inject(UserService);
+  private readonly realtime = inject(RealtimeService);
   private readonly router = inject(Router);
 
   readonly currentUser = computed(() => this.authService.currentUser());
@@ -42,6 +44,7 @@ export class DashboardPageComponent {
 
   constructor() {
     this.loadDashboard();
+    this.setupRealtime();
   }
 
   get isEditing(): boolean {
@@ -176,6 +179,33 @@ export class DashboardPageComponent {
       error: (error) => {
         this.pageError.set(error.error?.message ?? 'Could not reload the tasks.');
       },
+    });
+  }
+
+  private setupRealtime(): void {
+    const socket = this.realtime.connect();
+    if (!socket) {
+      return;
+    }
+
+    socket.off('task:updated');
+    socket.off('task:deleted');
+
+    socket.on('task:updated', ({ task }) => {
+      this.tasks.update((current) => {
+        const idx = current.findIndex((t) => t._id === task._id);
+        if (idx === -1) return current;
+        const next = current.slice();
+        next[idx] = task;
+        return next;
+      });
+    });
+
+    socket.on('task:deleted', ({ taskId }) => {
+      this.tasks.update((current) => current.filter((t) => t._id !== taskId));
+      if (this.editingTaskId() === taskId) {
+        this.resetForm();
+      }
     });
   }
 }

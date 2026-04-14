@@ -1,5 +1,6 @@
 export const environment = {
-  apiUrl: 'https://tt4-2920-be-8948.onrender.com'
+  apiUrl: ((globalThis as unknown as { __env?: { API_URL?: string } }).__env?.API_URL ||
+    'http://localhost:5000') as string,
 };
 
 
