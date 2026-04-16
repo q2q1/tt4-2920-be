@@ -1,6 +1,7 @@
 services:
   - type: web
     name: tt4-2920-backend
+    plan: free
     runtime: docker
     rootDir: .
     dockerfilePath: ./Dockerfile
@@ -22,6 +23,7 @@ services:
 
   - type: web
     name: tt4-2920-frontend
+    plan: free
     runtime: docker
     rootDir: ./frontend
     dockerfilePath: ./Dockerfile
