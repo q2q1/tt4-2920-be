@@ -1,9 +1,10 @@
 services:
   - type: web
     name: tt4-2920-backend
-    env: docker
+    runtime: docker
     rootDir: .
     dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
@@ -14,13 +15,19 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CLIENT_ORIGIN
-        sync: false
+        fromService:
+          name: tt4-2920-frontend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
 
   - type: web
     name: tt4-2920-frontend
-    env: docker
+    runtime: docker
     rootDir: ./frontend
     dockerfilePath: ./Dockerfile
     envVars:
       - key: API_URL
-        sync: false
+        fromService:
+          name: tt4-2920-backend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL

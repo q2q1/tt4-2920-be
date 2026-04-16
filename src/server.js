@@ -22,7 +22,8 @@ const startServer = async () => {
             cors: {
                 origin: process.env.CLIENT_ORIGIN ? process.env.CLIENT_ORIGIN.split(",") : true,
                 credentials: true
-            }
+            },
+            transports: ["websocket", "polling"]
         });
 
         io.use((socket, next) => {

@@ -5,6 +5,10 @@ const taskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN ? process.env.CLIENT_ORIGIN.split(",") : true,

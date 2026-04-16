@@ -188,13 +188,25 @@ export class DashboardPageComponent {
       return;
     }
 
+    socket.off('task:created');
     socket.off('task:updated');
     socket.off('task:deleted');
+
+    socket.on('task:created', ({ task }) => {
+      this.tasks.update((current) => {
+        if (current.some((t) => t._id === task._id)) {
+          return current;
+        }
+        return [task, ...current];
+      });
+    });
 
     socket.on('task:updated', ({ task }) => {
       this.tasks.update((current) => {
         const idx = current.findIndex((t) => t._id === task._id);
-        if (idx === -1) return current;
+        if (idx === -1) {
+          return [task, ...current];
+        }
         const next = current.slice();
         next[idx] = task;
         return next;

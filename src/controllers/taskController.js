@@ -162,7 +162,9 @@ const updateTask = async (req, res) => {
     }
 
     const isOwner = task.userId.toString() === req.user.id;
-    const isAssignedUser = task.assignedUserId.toString() === req.user.id;
+    const isAssignedUser =
+      task.assignedUserId != null &&
+      task.assignedUserId.toString() === req.user.id;
 
     if(!isOwner && !isAssignedUser){
         return res.status(403).json({ message: "Only owner or assigned user can update the task." });

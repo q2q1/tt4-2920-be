@@ -33,7 +33,7 @@ export class RealtimeService {
     this.disconnect();
 
     this.socket = io(environment.apiUrl, {
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
       auth: { token },
     });
 
