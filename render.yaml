@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: tt4-2920-backend
+    name: tt4-2920-api
     plan: free
     runtime: docker
     rootDir: .
@@ -17,12 +17,12 @@ services:
         sync: false
       - key: CLIENT_ORIGIN
         fromService:
-          name: tt4-2920-frontend
+          name: tt4-2920-web
           type: web
           envVarKey: RENDER_EXTERNAL_URL
 
   - type: web
-    name: tt4-2920-frontend
+    name: tt4-2920-web
     plan: free
     runtime: docker
     rootDir: ./frontend
@@ -30,6 +30,6 @@ services:
     envVars:
       - key: API_URL
         fromService:
-          name: tt4-2920-backend
+          name: tt4-2920-api
           type: web
           envVarKey: RENDER_EXTERNAL_URL
