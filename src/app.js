@@ -5,6 +5,10 @@ const taskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 
+app.get("/", (_req, res) => {
+  res.status(200).json({ ok: true, service: "tt4-api" });
+});
+
 app.get("/health", (_req, res) => {
   res.status(200).json({ ok: true });
 });
